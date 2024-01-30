@@ -9,6 +9,13 @@ import java.util.regex.Pattern
 
 
 class DependenciesVersionHelper : ProjectManagerListener {
+    /** TODO
+     *  [] 프로젝트 오픈 시점
+     *     : springboot 버전 읽어서 spring-boot-dependencies maven xml 파일 가져오기 + 파싱
+     *  [] build.gradle 파일 오픈 시점 또는 변경이 있을 때
+     *     : build.gradle 파일에 있는 dependencies 읽어와서 spring-boot-dependencies 와 비교
+     */
+
     private val connection: MessageBusConnection
 
     init {
