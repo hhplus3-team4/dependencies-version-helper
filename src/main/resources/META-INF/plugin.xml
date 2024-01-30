@@ -25,6 +25,12 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-
     </extensions>
+
+    <application-components>
+        <component>
+            <implementation-class>com.hhplus.dependenciesversionhelper.DependenciesVersionHelper</implementation-class>
+        </component>
+    </application-components>
+
 </idea-plugin>
