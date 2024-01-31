@@ -19,6 +19,7 @@ class DependenciesVersionHelper : ProjectManagerListener {
      * TODO: 다른 방식의 저장 고민 (상태 관리 등)
      */
     private var managedDependencies = mutableListOf<Dependency>()
+    private var buildGradleString:String? = null  // 임시
 
     private val connection: MessageBusConnection
 
@@ -53,22 +54,25 @@ class DependenciesVersionHelper : ProjectManagerListener {
      * TODO: 프로젝트 내 build.gradle 파일을 파싱하는 부분은 추후에도 사용할 것 같아서 별도 메서드로 분리
      */
     private fun findSpringBootVersion(project: Project): String? {
-        // build.gradle 또는 pom.xml에서 스프링 부트 버전 추출 로직
+        parseGradleFile(project)
+        return try {
+            buildGradleString?.let { extractSpringBootVersion(it) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun parseGradleFile(project: Project) {
         val projectFile = project.projectFile
         val projectBaseDir = projectFile?.parent?.parent
 
         val buildGradleFile = projectBaseDir?.findChild("build.gradle")
 
         if (buildGradleFile != null) {
-            try {
-                val buildGradleContent = String(buildGradleFile.contentsToByteArray())
-                println(">>>>> buildGradleContent:\n $buildGradleContent")
-                return extractSpringBootVersion(buildGradleContent)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            buildGradleString = String(buildGradleFile.contentsToByteArray())
+            println(">>>>> buildGradleContent:\n $buildGradleString")
         }
-        return null
     }
 
     private fun extractSpringBootVersion(buildGradleContent: String): String? {
@@ -78,6 +82,10 @@ class DependenciesVersionHelper : ProjectManagerListener {
         return if (matcher.find()) {
             matcher.group(1)
         } else null
+    }
+
+    private fun extractDependencies(buildGradleContent: String) {
+        // TODO 현재 프로젝트의 build.gradle 파일에서 dependencies 가져와서 Dependency 목록으로 생성
     }
 
     /**
