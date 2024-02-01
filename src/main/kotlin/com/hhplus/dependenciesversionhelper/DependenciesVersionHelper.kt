@@ -21,13 +21,6 @@ class DependenciesVersionHelper : ProjectManagerListener {
     private var managedDependencies = mutableListOf<Dependency>()
     private var buildGradleString:String? = null  // 임시
 
-    private val connection: MessageBusConnection
-
-    init {
-        connection = ApplicationManager.getApplication().messageBus.connect()
-        connection.subscribe(ProjectManager.TOPIC, this)
-    }
-
     /**
      * 프로젝트 오픈 시 수행
      * TODO: 실행 주기 등으로 추가로 고민 (Action 도 고민)
@@ -43,10 +36,6 @@ class DependenciesVersionHelper : ProjectManagerListener {
         // TODO 3. 오픈된 프로젝트에서 사용되는 dependencies가 관리되고 있는 것인지 비교
 
         // TODO 4. 관리되고 있는 경우 warning 표시
-    }
-
-    fun dispose() {
-        connection.disconnect()
     }
 
     /**
