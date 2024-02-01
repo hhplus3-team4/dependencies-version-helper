@@ -27,10 +27,9 @@
     <extensions defaultExtensionNs="com.intellij">
     </extensions>
 
-    <application-components>
-        <component>
-            <implementation-class>com.hhplus.dependenciesversionhelper.DependenciesVersionHelper</implementation-class>
-        </component>
-    </application-components>
+    <projectListeners>
+        <listener class="com.hhplus.dependenciesversionhelper.DependenciesVersionHelper" topic="com.intellij.openapi.project.ProjectManagerListener"/>
+    </projectListeners>
+
 
 </idea-plugin>
