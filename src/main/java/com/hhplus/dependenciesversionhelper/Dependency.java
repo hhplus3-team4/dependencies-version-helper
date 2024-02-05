@@ -31,4 +31,8 @@ public class Dependency {
                 ", version='" + version + '\'' +
                 "}";
     }
+
+    public String deserialize() {
+        return String.format("%s:%s:%s", groupId, artifactId, version);
+    }
 }

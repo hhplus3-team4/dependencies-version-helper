@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DependencyManager {
-    private static final List<Dependency> dependencies = new ArrayList<>();
+    private static List<Dependency> dependencies = new ArrayList<>();
+    private static List<Dependency> changeDependencies = new ArrayList<>();
 
     public static void downloadSpringBootDependenciesPOM(String springBootVersion) {
         String pomUrl = "https://repo1.maven.org/maven2/org/springframework/boot/spring-boot-dependencies/" +
@@ -62,7 +63,12 @@ public class DependencyManager {
         return dependencies;
     }
 
-    public static void compareWithDependencyManager(List<Dependency> projectDependencies) {
+    public static void resetDependencyList() { // 다시 누를때마다 초기화
+        dependencies = new ArrayList<>();
+        changeDependencies = new ArrayList<>();
+    }
+
+    public static List<Dependency> compareWithDependencyManager(List<Dependency> projectDependencies) {
         for (Dependency projectDependency : projectDependencies) {
             boolean isDependencyFound = dependencies.stream()
                     .anyMatch(globalDependency ->
@@ -70,11 +76,19 @@ public class DependencyManager {
                                     globalDependency.getArtifactId().equals(projectDependency.getArtifactId()));
 
             if (isDependencyFound) {
-                // TODO 찾은 dependencies에 버전이 있으면 popup에 표시 또는 찾는 dependency list만 return
                 System.out.println("Dependency found in DependencyManager: " + projectDependency);
+
+                // 찾은 dependencies에 버전이 있으면 변경할 dependency list return
+                if (!projectDependency.getVersion().equals("")) {
+                    Dependency changeDependency = new Dependency(projectDependency.getGroupId(), projectDependency.getArtifactId(), projectDependency.getVersion());
+                    changeDependencies.add(changeDependency);
+                }
             } else {
                 System.out.println("Dependency NOT found in DependencyManager: " + projectDependency);
             }
         }
+
+        return changeDependencies;
     }
+
 }
