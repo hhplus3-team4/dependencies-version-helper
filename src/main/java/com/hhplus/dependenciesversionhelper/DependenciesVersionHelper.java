@@ -33,10 +33,7 @@ public class DependenciesVersionHelper extends AnAction {
         List<Dependency> changeDependencies = compareWithDependencyManager(dependencies);
 
         // 팝업 창에 리스트 띄우기
-        SampleDialogWrapper dialog = new SampleDialogWrapper(changeDependencies);
+        SampleDialogWrapper dialog = new SampleDialogWrapper(project, changeDependencies);
         dialog.showAndGet();
-
     }
-
-
 }
