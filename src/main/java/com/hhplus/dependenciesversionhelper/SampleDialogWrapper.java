@@ -1,22 +1,28 @@
 package com.hhplus.dependenciesversionhelper;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.NlsContexts;
-import com.intellij.ui.wizard.WizardAction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.hhplus.dependenciesversionhelper.GradleFileEditor.removeDependencyVersion;
 
 public class SampleDialogWrapper extends DialogWrapper {
+    private final Project project;
+    private final List<Dependency> dependencies;
+    private final Map<JCheckBox, Dependency> checkBoxDependencyMap = new HashMap<>();
 
-    private List<Dependency> dependencies = new ArrayList<>();
-
-    public SampleDialogWrapper(List<Dependency> dependencies) {
-        super(true); // use current window as parent
+    public SampleDialogWrapper(Project project, List<Dependency> dependencies) {
+        super(project,true); // use current window as parent
+        this.project = project;
         this.dependencies = dependencies;
         // 창 타이틀
         setTitle("Test DialogWrapper");
@@ -24,7 +30,7 @@ public class SampleDialogWrapper extends DialogWrapper {
     }
 
     @Override
-    protected Action[] createActions() { // 버튼 생성
+    protected Action @NotNull [] createActions() { // 버튼 생성
         OkAction okAction = new OkAction("OK");
         CancelAction cancelAction = new CancelAction("CANCEL");
         return new Action[] { okAction, cancelAction };
@@ -37,33 +43,39 @@ public class SampleDialogWrapper extends DialogWrapper {
         dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
         dialogPanel.setPreferredSize(new Dimension(500, 500));
 
-        // 창 체크박스
         for (Dependency dependency : dependencies) {
             JCheckBox checkBox = new JCheckBox(dependency.deserialize());
-            checkBox.setPreferredSize(new Dimension(10, 10));
-            dialogPanel.add(checkBox, BorderLayout.CENTER);
+            checkBoxDependencyMap.put(checkBox, dependency);
+            dialogPanel.add(checkBox);
         }
 
         return dialogPanel;
     }
 
     protected final class OkAction extends DialogWrapperAction {
-
-        protected OkAction(@NotNull @NlsContexts.Button String name) {
+        private OkAction(@NotNull @NlsContexts.Button String name) {
             super(name);
         }
 
         @Override
         protected void doAction(ActionEvent e) {
-            // todo: ok 누른 후 실행할 코드
-            // checkbox checked 된것 리스트 담기
-            // 위치 찾아서 변경하기
+            if (project != null) {
+                // 체크된 의존성만 추출
+                List<Dependency> selectedDependencies = checkBoxDependencyMap.entrySet().stream()
+                        .filter(entry -> entry.getKey().isSelected())
+                        .map(Map.Entry::getValue)
+                        .collect(Collectors.toList());
+
+                // 선택된 의존성의 버전 제거
+                System.out.println(">>> selected => " + selectedDependencies);
+                removeDependencyVersion(project, selectedDependencies);
+            }
+            close(OK_EXIT_CODE);
         }
     }
 
     protected final class CancelAction extends DialogWrapperAction {
-
-        protected CancelAction(@NotNull @NlsContexts.Button String name) {
+        private CancelAction(@NotNull @NlsContexts.Button String name) {
             super(name);
         }
 
@@ -72,7 +84,4 @@ public class SampleDialogWrapper extends DialogWrapper {
             dispose();
         }
     }
-
-
-
 }
