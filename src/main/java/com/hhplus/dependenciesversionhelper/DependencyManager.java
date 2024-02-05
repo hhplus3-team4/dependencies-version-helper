@@ -1,5 +1,6 @@
 package com.hhplus.dependenciesversionhelper;
 
+import com.intellij.openapi.application.PathManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -10,24 +11,51 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DependencyManager {
+    private static String springBootVersion;
     private static List<Dependency> dependencies = new ArrayList<>();
     private static List<Dependency> changeDependencies = new ArrayList<>();
 
-    public static void downloadSpringBootDependenciesPOM(String springBootVersion) {
-        String pomUrl = "https://repo1.maven.org/maven2/org/springframework/boot/spring-boot-dependencies/" +
-                springBootVersion + "/spring-boot-dependencies-" + springBootVersion + ".pom";
+    public static String getSpringBootVersion() {
+        return springBootVersion;
+    }
+
+    public static void downloadSpringBootDependenciesPOM(String version) {
+        springBootVersion = version;
+
+        Path cachePath = Paths.get(PathManager.getPluginTempPath(), "spring-boot-dependencies");
+        System.out.println("POM 파일 저장 경로: " + cachePath);
+
+        Path pomFile = cachePath.resolve("spring-boot-dependencies-" + springBootVersion + ".pom.xml");
+
         try {
-            URL url = new URL(pomUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            parseDependenciesFromPom(connection.getInputStream());
-            connection.disconnect();
+            if (!Files.exists(pomFile)) {
+                Files.createDirectories(cachePath); // 디렉토리가 없으면 생성
+
+                // 파일이 캐시에 없으면 다운로드
+                URL url = new URL("https://repo1.maven.org/maven2/org/springframework/boot/spring-boot-dependencies/" +
+                        springBootVersion + "/spring-boot-dependencies-" + springBootVersion + ".pom");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+
+                // 스트림을 통해 파일에 쓰기
+                Files.copy(connection.getInputStream(), pomFile);
+                connection.disconnect();
+                System.out.println("POM 파일 다운로드 및 저장: " + pomFile);
+            }
+
+            // 파일이 이미 존재하거나 다운로드 후, 해당 파일을 파싱
+            try (InputStream pomInputStream = Files.newInputStream(pomFile)) {
+                parseDependenciesFromPom(pomInputStream);
+            }
         } catch (Exception ex) {
-            System.out.println("Failed to download spring-boot-dependencies POM" + ex);
+            System.out.println("POM 파일 처리 중 오류 발생: " + ex.getMessage());
         }
     }
 
@@ -57,10 +85,6 @@ public class DependencyManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public static List<Dependency> getDependencies() {
-        return dependencies;
     }
 
     public static void resetDependencyList() { // 다시 누를때마다 초기화

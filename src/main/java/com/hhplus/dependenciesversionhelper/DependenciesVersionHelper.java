@@ -16,6 +16,8 @@ public class DependenciesVersionHelper extends AnAction {
         Project project = e.getProject();
         if (project == null) return;
 
+        // TODO 현재 파일이 build.gradle 인지 파악해서 그 경우에만 실행되게 할까요...?
+
         resetDependencyList(); // 리스트 초기화
 
         String springBootVersion = findSpringBootVersion(project);
