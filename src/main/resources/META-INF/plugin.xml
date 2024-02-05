@@ -8,7 +8,7 @@
     <name>Dependencies-version-helper</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor email="support@yourcompany.com" url="https://www.yourcompany.com">YourCompany</vendor>
+    <vendor email="support@yourcompany.com" url="https://www.yourcompany.com">HhTeam4</vendor>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
@@ -27,4 +27,19 @@
     <extensions defaultExtensionNs="com.intellij">
 
     </extensions>
+<<<<<<< HEAD
+=======
+
+
+    <actions>
+        <action id="DependenciesVersionHelper" class="com.hhplus.dependenciesversionhelper.DependenciesVersionHelper"
+                text="DependenciesVersionHelper" description="DependenciesVersionHelper">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <!-- 단축키 추가 -->
+            <keyboard-shortcut first-keystroke="ctrl shift D" keymap="$default"/>
+            <!-- macOS의 경우 cmd 키 사용 -->
+            <keyboard-shortcut first-keystroke="meta shift D" keymap="$mac"/>
+        </action>
+    </actions>
+>>>>>>> 6a137d70fae97a7dc74557139c716947453be81b
 </idea-plugin>
