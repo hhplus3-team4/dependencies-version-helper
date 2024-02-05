@@ -1,14 +1,20 @@
-package com.hhplus.dependenciesversionhelper;
+package com.hhplus.dependenciesversionhelper.model;
 
 public class Dependency {
+    private String dependencyType;
     private String groupId;
     private String artifactId;
     private String version;
 
-    public Dependency(String groupId, String artifactId, String version) {
+    public Dependency(String dependencyType, String groupId, String artifactId, String version) {
+        this.dependencyType = dependencyType;
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
+    }
+
+    public String getDependencyType() {
+        return dependencyType;
     }
 
     public String getGroupId() {
@@ -25,7 +31,7 @@ public class Dependency {
 
     @Override
     public String toString() {
-        return "Dependency{" +
+        return dependencyType + "{" +
                 "groupId='" + groupId + '\'' +
                 ", artifactId='" + artifactId + '\'' +
                 ", version='" + version + '\'' +
@@ -33,6 +39,6 @@ public class Dependency {
     }
 
     public String deserialize() {
-        return String.format("%s:%s:%s", groupId, artifactId, version);
+        return dependencyType + "(" + String.format("%s:%s:%s", groupId, artifactId, version) + ")";
     }
 }

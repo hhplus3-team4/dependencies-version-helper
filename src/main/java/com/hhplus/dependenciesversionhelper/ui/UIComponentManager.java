@@ -1,5 +1,6 @@
-package com.hhplus.dependenciesversionhelper;
+package com.hhplus.dependenciesversionhelper.ui;
 
+import com.hhplus.dependenciesversionhelper.model.Dependency;
 import com.intellij.ui.table.JBTable;
 import org.jetbrains.annotations.NotNull;
 
@@ -7,15 +8,13 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class UIComponentManager {
-    // 테이블 모델 생성 -> 생성해서 반환하는 static 함수로 변경
-    public static final DefaultTableModel createTableModel() {
-        return new DefaultTableModel(new Object[]{"Select", "Dependencies"}, 0) {
+    public DefaultTableModel createTableModel(String relativePath, String springBootVersion) {
+        return new DefaultTableModel(new Object[]{"Select", "Dependencies(" + relativePath + ")(Spring Boot Version: " + springBootVersion + ")"}, 0) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
                 return columnIndex == 0 ? Boolean.class : String.class;
@@ -29,11 +28,9 @@ public class UIComponentManager {
     }
 
     @NotNull
-    public static JLabel createLabel() {
-        String springBootVersion = DependencyManager.getSpringBootVersion();
-
+    public JLabel createLabel() {
         // 라벨 여백 조정
-        JLabel descriptionLabel = new JLabel("<html><b>SpringBoot Version " + springBootVersion + " Managed Dependencies.</b><br><br>"
+        JLabel descriptionLabel = new JLabel("<html><b>SpringBoot Version Managed Dependencies.</b><br><br>"
                 + "The following dependencies are managed by SpringBoot, so specifying a version is unnecessary.<br>"
                 + "If you wish for versions to be automatically managed, please select the checkboxes.<br></html>");
         descriptionLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // 상하 여백은 유지하고 좌우 여백을 제거합니다.
