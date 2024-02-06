@@ -13,8 +13,6 @@ Dependencies Version Helper is a plugin for IntelliJ IDEA that assists in managi
 
 ## Installation
 
-Currently, this plugin can be directly installed through the IntelliJ IDEA plugin repository.
-
 1. Go to `File > Settings > Plugins` in IntelliJ IDEA.
 2. Select the `Marketplace` tab and search for "Dependencies Version Helper".
 3. Find the plugin and click the `Install` button.
