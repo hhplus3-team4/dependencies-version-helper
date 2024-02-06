@@ -15,7 +15,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DependencyManager {
     private static String springBootVersion;
@@ -67,6 +71,16 @@ public class DependencyManager {
 
             doc.getDocumentElement().normalize();
 
+            // <properties> 태그 내의 모든 속성과 값을 사전에 저장
+            Element propertiesElement = (Element) doc.getElementsByTagName("properties").item(0);
+            NodeList properties = propertiesElement.getChildNodes();
+            Map<String, String> propertyValues = new HashMap<>();
+            for (int i = 0; i < properties.getLength(); i++) {
+                if (properties.item(i) instanceof Element property) {
+                    propertyValues.put(property.getTagName(), property.getTextContent());
+                }
+            }
+
             NodeList dependencyNodes = doc.getElementsByTagName("dependency");
 
             for (int i = 0; i < dependencyNodes.getLength(); i++) {
@@ -77,6 +91,14 @@ public class DependencyManager {
                     String groupId = element.getElementsByTagName("groupId").item(0).getTextContent();
                     String artifactId = element.getElementsByTagName("artifactId").item(0).getTextContent();
                     String version = element.getElementsByTagName("version").item(0).getTextContent();
+
+                    // 버전 플레이스홀더 대체
+                    String versionPattern = "\\$\\{(.+?)\\}";
+                    Matcher matcher = Pattern.compile(versionPattern).matcher(version);
+                    if (matcher.find()) {
+                        String propertyName = matcher.group(1);
+                        version = propertyValues.getOrDefault(propertyName, "unknown");
+                    }
 
                     Dependency dependency = new Dependency(groupId, artifactId, version);
                     dependencies.add(dependency);
