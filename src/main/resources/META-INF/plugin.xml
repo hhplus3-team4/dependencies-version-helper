@@ -25,10 +25,7 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-
     </extensions>
-<<<<<<< HEAD
-=======
 
 
     <actions>
@@ -41,5 +38,4 @@
             <keyboard-shortcut first-keystroke="meta shift D" keymap="$mac"/>
         </action>
     </actions>
->>>>>>> 6a137d70fae97a7dc74557139c716947453be81b
 </idea-plugin>
