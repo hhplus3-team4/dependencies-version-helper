@@ -7,23 +7,27 @@ import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.hhplus.dependenciesversionhelper.DependencyManager.downloadSpringBootDependenciesPOM;
+import static com.hhplus.dependenciesversionhelper.GradleExtractor.findSpringBootVersion;
 import static com.hhplus.dependenciesversionhelper.GradleFileEditor.removeDependencyVersion;
 import static com.hhplus.dependenciesversionhelper.UIComponentManager.*;
 
 public class SampleDialogWrapper extends DialogWrapper {
     private final Project project;
-    private final List<Dependency> dependencies;
+    private List<Dependency> dependencies;
 
-    public SampleDialogWrapper(Project project, List<Dependency> dependencies) {
+    private DefaultTableModel tableModel;
+
+    public SampleDialogWrapper(Project project) {
         super(project,true); // use current window as parent
         this.project = project;
-        this.dependencies = dependencies;
-
+        dependencies = loadChangeableDependencies(project);
         setTitle("Dependencies Version Helper");
         init();
     }
@@ -31,9 +35,11 @@ public class SampleDialogWrapper extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
         JLabel descriptionLabel = createLabel();
+        // 디펜던시 로드
 
         // 테이블을 스크롤 패널에 추가
-        JTable table = createTable(dependencies);
+        tableModel = createTableModel();
+        JTable table = createTable(tableModel, dependencies);
         JScrollPane tableScrollPane = new JBScrollPane(table);
 
         // 전체 패널에 라벨과 스크롤 패널 추가
@@ -43,6 +49,15 @@ public class SampleDialogWrapper extends DialogWrapper {
         dialogPanel.add(tableScrollPane, BorderLayout.CENTER);
 
         return dialogPanel;
+    }
+
+    private List<Dependency> loadChangeableDependencies(Project project) {
+        String springBootVersion = findSpringBootVersion(project);
+        // 만약 SpringBoot 버전을 읽는 데에 실패한다면, 빈 배열을 반환한다.
+        if (springBootVersion == null) return new ArrayList<>();
+        List<Dependency> pomDependencies = downloadSpringBootDependenciesPOM(springBootVersion);
+        List<Dependency> projectDependencies = GradleExtractor.extractDependenciesFromProject(project);
+        return DependencyManager.compareWithDependencyManager(projectDependencies, pomDependencies);
     }
 
     @Override
