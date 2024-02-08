@@ -23,14 +23,12 @@ import java.util.regex.Pattern;
 
 public class DependencyManager {
     private static String springBootVersion;
-    private static List<Dependency> dependencies = new ArrayList<>();
-    private static List<Dependency> changeDependencies = new ArrayList<>();
 
     public static String getSpringBootVersion() {
         return springBootVersion;
     }
 
-    public static void downloadSpringBootDependenciesPOM(String version) {
+    public static List<Dependency> downloadSpringBootDependenciesPOM(String version) {
         springBootVersion = version;
 
         Path cachePath = Paths.get(PathManager.getPluginTempPath(), "spring-boot-dependencies");
@@ -54,16 +52,22 @@ public class DependencyManager {
                 System.out.println("POM 파일 다운로드 및 저장: " + pomFile);
             }
 
+            List<Dependency> pomDependencies = new ArrayList<>();
+
             // 파일이 이미 존재하거나 다운로드 후, 해당 파일을 파싱
             try (InputStream pomInputStream = Files.newInputStream(pomFile)) {
-                parseDependenciesFromPom(pomInputStream);
+                pomDependencies = parseDependenciesFromPom(pomInputStream);
+            } finally {
+                return pomDependencies;
             }
         } catch (Exception ex) {
             System.out.println("POM 파일 처리 중 오류 발생: " + ex.getMessage());
         }
+        return new ArrayList<>();
     }
 
-    public static void parseDependenciesFromPom(InputStream pomInputStream) {
+    public static List<Dependency> parseDependenciesFromPom(InputStream pomInputStream) {
+        List<Dependency> dependencies = new ArrayList<>(); // list reset
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -104,19 +108,18 @@ public class DependencyManager {
                     dependencies.add(dependency);
                 }
             }
+
+            return dependencies;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return new ArrayList<>();
     }
 
-    public static void resetDependencyList() { // 다시 누를때마다 초기화
-        dependencies = new ArrayList<>();
-        changeDependencies = new ArrayList<>();
-    }
-
-    public static List<Dependency> compareWithDependencyManager(List<Dependency> projectDependencies) {
+    public static List<Dependency> compareWithDependencyManager(List<Dependency> projectDependencies, List<Dependency> pomDependencies) {
+        List<Dependency> changeDependencies = new ArrayList<>();
         for (Dependency projectDependency : projectDependencies) {
-            boolean isDependencyFound = dependencies.stream()
+            boolean isDependencyFound = pomDependencies.stream()
                     .anyMatch(globalDependency ->
                             globalDependency.getGroupId().equals(projectDependency.getGroupId()) &&
                                     globalDependency.getArtifactId().equals(projectDependency.getArtifactId()));

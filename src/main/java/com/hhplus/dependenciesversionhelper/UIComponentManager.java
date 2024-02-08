@@ -7,23 +7,26 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class UIComponentManager {
-    // 테이블 모델 생성
-    public static final DefaultTableModel tableModel = new DefaultTableModel(new Object[]{"Select", "Dependencies"}, 0) {
-        @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            return columnIndex == 0 ? Boolean.class : String.class;
-        }
+    // 테이블 모델 생성 -> 생성해서 반환하는 static 함수로 변경
+    public static final DefaultTableModel createTableModel() {
+        return new DefaultTableModel(new Object[]{"Select", "Dependencies"}, 0) {
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                return columnIndex == 0 ? Boolean.class : String.class;
+            }
 
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return column == 0; // 첫 번째 열(체크박스)만 편집 가능
-        }
-    };
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 0; // 첫 번째 열(체크박스)만 편집 가능
+            }
+        };
+    }
 
     @NotNull
     public static JLabel createLabel() {
@@ -37,7 +40,8 @@ public class UIComponentManager {
         return descriptionLabel;
     }
 
-    public static JTable createTable(List<Dependency> dependencies) {
+    // 이미 만들어진 tableModel 과 dependency 이용해 테이블 객체 생성해 반환
+    public static JTable createTable(DefaultTableModel tableModel, List<Dependency> dependencies) {
         // 의존성 데이터를 테이블 모델에 추가
         for (Dependency dependency : dependencies) {
             tableModel.addRow(new Object[]{false, dependency.deserialize()});
@@ -61,12 +65,13 @@ public class UIComponentManager {
         header.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                toggleSelectAll(selectAllCheckBox, header, e);
+                toggleSelectAll((DefaultTableModel) table.getModel(), selectAllCheckBox, header, e);
             }
         });
     }
 
-    private static void toggleSelectAll(JCheckBox selectAllCheckBox, JTableHeader header, MouseEvent e) {
+    // 외부에서 tableModel 을 받아 작업을 처리하도록 변경
+    private static void toggleSelectAll(DefaultTableModel tableModel, JCheckBox selectAllCheckBox, JTableHeader header, MouseEvent e) {
         // 클릭된 위치가 첫 번째 열의 헤더인지 확인
         int columnIndex = header.columnAtPoint(e.getPoint());
         if (columnIndex == 0) {

@@ -42,6 +42,8 @@ public class GradleFileEditor {
                         PsiDocumentManager.getInstance(project).commitDocument(document);
                     }
                 });
+                // 수정 완료된 File 을 로드해 파일 시스템에 저장한다.
+                FileDocumentManager.getInstance().saveDocument(FileDocumentManager.getInstance().getDocument(file));
             }
         }
     }
