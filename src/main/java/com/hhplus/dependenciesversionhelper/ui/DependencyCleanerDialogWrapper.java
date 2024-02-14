@@ -1,14 +1,8 @@
 package com.hhplus.dependenciesversionhelper.ui;
 
-import com.hhplus.dependenciesversionhelper.service.DependencyComparator;
-import com.hhplus.dependenciesversionhelper.service.GradleCleaner;
-import com.hhplus.dependenciesversionhelper.service.GradleParserWithGroovy;
-import com.hhplus.dependenciesversionhelper.service.GradleParserWithKotlinDsl;
 import com.hhplus.dependenciesversionhelper.model.Dependency;
 import com.hhplus.dependenciesversionhelper.model.GradleAuditInfo;
-import com.hhplus.dependenciesversionhelper.service.GradleCleanerWithGroovy;
-import com.hhplus.dependenciesversionhelper.service.GradleCleanerWithKotlinDsl;
-import com.hhplus.dependenciesversionhelper.service.GradleParser;
+import com.hhplus.dependenciesversionhelper.service.*;
 import com.hhplus.dependenciesversionhelper.util.DependenciesFetcher;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -17,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.components.JBTabbedPane;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -35,7 +30,7 @@ public class DependencyCleanerDialogWrapper extends DialogWrapper {
     private List<GradleAuditInfo> gradleAuditInfos;
     private DefaultTableModel tableModel;
     private Map<GradleAuditInfo, DefaultTableModel> infoToTableModelMap = new HashMap<>();
-    private JTabbedPane tabbedPane = new JTabbedPane();
+    private JBTabbedPane tabbedPane = new JBTabbedPane();
 
 
 
