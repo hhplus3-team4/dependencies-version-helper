@@ -19,6 +19,8 @@ public class GradleParserWithKotlinDsl implements GradleParser {
         Matcher matcher = pattern.matcher(fileContent);
 
         if (matcher.find()) {
+            System.out.println("kotlin" + matcher.group(1));
+
             return matcher.group(1);
         }
 
@@ -28,39 +30,33 @@ public class GradleParserWithKotlinDsl implements GradleParser {
     @Override
     public List<Dependency> parseGradleDependencies(PsiFile psiFile) {
         List<Dependency> dependencies = new ArrayList<>();
+        String fileContent = psiFile.getText();
 
-        if (psiFile instanceof KtFile) {
-            KtFile ktFile = (KtFile)psiFile;
+        String dependencyTypes = String.join("|",
+                "implementation",
+                "testImplementation",
+                "compileOnly",
+                "runtimeOnly",
+                "testRuntimeOnly",
+                "testCompileOnly",
+                "api",
+                "annotationProcessor",
+                "developmentOnly"
+        );
+        String groupArtifactVersionPattern = "['\"]([^':]+):([^':]+):([^'\"\\s]+)['\"]";
 
-            String dependencyTypes = String.join("|",
-                    "implementation",
-                    "testImplementation",
-                    "compileOnly",
-                    "runtimeOnly",
-                    "testRuntimeOnly",
-                    "testCompileOnly",
-                    "api",
-                    "annotationProcessor",
-                    "developmentOnly"
-            );
-            String groupArtifactVersionPattern = "\\(\"([^:]+):([^:]+):([^\\)\"]+)\"\\)";
+        Pattern pattern = Pattern.compile("(" + dependencyTypes + ")\\s*\\(" + groupArtifactVersionPattern + "\\)");
+        Matcher matcher = pattern.matcher(fileContent);
 
-            Pattern pattern = Pattern.compile("(" + dependencyTypes + ")\\s+" + groupArtifactVersionPattern);
+        while (matcher.find()) {
+            String dependencyType = matcher.group(1);
+            String groupId = matcher.group(2);
+            String artifactId = matcher.group(3);
+            String version = matcher.group(4);
 
-            PsiTreeUtil.findChildrenOfType(ktFile, KtCallExpression.class).forEach(callExpression -> {
-                String text = callExpression.getText();
-                Matcher matcher = pattern.matcher(text);
-
-                while (matcher.find()) {
-                    String dependencyType = matcher.group(1);
-                    String groupId = matcher.group(2);
-                    String artifactId = matcher.group(3);
-                    String version = matcher.group(4) != null ? matcher.group(4) : "";
-
-                    dependencies.add(new Dependency(dependencyType, groupId, artifactId, version));
-                }
-            });
+            dependencies.add(new Dependency(dependencyType, groupId, artifactId, version));
         }
+
         return dependencies;
     }
 }
