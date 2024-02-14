@@ -6,7 +6,8 @@ import com.intellij.psi.PsiFile;
 import java.util.List;
 
 public interface GradleParser {
-    public String findSpringBootVersion(PsiFile psiFile);
+    public String findSpringBootVersion(PsiFile psiFile, String gradleFileName);
 
-    public List<Dependency> parseGradleDependencies(PsiFile psiFile);
+    public List<Dependency> parseGradleDependencies(PsiFile psiFile, String gradleFileName);
+
 }

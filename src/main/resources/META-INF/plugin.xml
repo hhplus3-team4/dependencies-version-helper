@@ -17,11 +17,6 @@
         ]]>
     </change-notes>
 
-    <dependencies>
-        <plugin id="org.intellij.groovy"/>
-        <plugin id="org.jetbrains.kotlin"/>
-    </dependencies>
-
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
