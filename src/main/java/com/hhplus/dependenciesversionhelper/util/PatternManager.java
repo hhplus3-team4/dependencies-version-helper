@@ -2,9 +2,13 @@ package com.hhplus.dependenciesversionhelper.util;
 
 import java.util.regex.Pattern;
 
-public class PatternManager {
+public interface PatternManager {
 
-    public Pattern getParserPatternWithGroovy() {
-        return null;
-    }
+    public Pattern getVersionPattern();
+
+    public Pattern getDependencyPattern();
+
+    public String getDependencyCleanPattern(String groupId, String artifactId);
+
+    public String getDependencyReplacementPattern(String groupId, String artifactId);
 }

@@ -88,47 +88,23 @@ public class DependencyCleanerDialogWrapper extends DialogWrapper {
     }
 
     private GradleAuditInfo auditDependenciesForGradleFile(VirtualFile gradleFile) {
-        GradleParser gradleParser = createGradleParser(gradleFile.getName());
+        GradleParser gradleParser = new GradleParserImpl();
         PsiFile psiFile = PsiManager.getInstance(project).findFile(gradleFile);
         DependenciesFetcher dependenciesFetcher = new DependenciesFetcher();
         DependencyComparator dependencyComparator = new DependencyComparator();
 
-        String springBootVersion = gradleParser.findSpringBootVersion(psiFile);
+        String springBootVersion = gradleParser.findSpringBootVersion(psiFile, gradleFile.getName());
         // 만약 SpringBoot 버전을 읽는 데에 실패한다면, 빈 배열을 반환한다.
         if (springBootVersion == null) return new GradleAuditInfo("",
                 new ArrayList<>(),
                 gradleFile);
 
         List<Dependency> pomDependencies = dependenciesFetcher.fetchSpringBootDependenciesPOM(springBootVersion);
-        List<Dependency> projectDependencies = gradleParser.parseGradleDependencies(psiFile);
+        List<Dependency> projectDependencies = gradleParser.parseGradleDependencies(psiFile, gradleFile.getName());
 
         return new GradleAuditInfo(springBootVersion,
                 dependencyComparator.compareWithDependencyManager(projectDependencies, pomDependencies),
                 gradleFile);
-    }
-
-    private GradleParser createGradleParser(String gradleFileName) {
-        if(gradleFileName.equals("build.gradle")) {
-            return new GradleParserWithGroovy();
-        }
-
-        if(gradleFileName.equals("build.gradle.kts")) {
-            return new GradleParserWithKotlinDsl();
-        }
-
-        return null;
-    }
-
-    private GradleCleaner createGradleCleaner(String gradleFileName) {
-        if(gradleFileName.equals("build.gradle")) {
-            return new GradleCleanerWithGroovy();
-        }
-
-        if(gradleFileName.equals("build.gradle.kts")) {
-            return new GradleCleanerWithKotlinDsl();
-        }
-
-        return null;
     }
 
     @Override
@@ -174,7 +150,7 @@ public class DependencyCleanerDialogWrapper extends DialogWrapper {
         }
 
         private void cleanDependencies(VirtualFile gradleFile, List<Dependency> selectedDependencies) {
-            GradleCleaner gradleCleaner = createGradleCleaner(gradleFile.getName());
+            GradleCleaner gradleCleaner = new GradleCleanerImpl();
             gradleCleaner.cleanDependencyVersion(project, gradleFile, selectedDependencies);
         }
 
