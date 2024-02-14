@@ -35,9 +35,11 @@ public class GradleParserWithKotlinDsl implements GradleParser {
             String dependencyTypes = String.join("|",
                     "implementation",
                     "testImplementation",
-                    "api",
                     "compileOnly",
                     "runtimeOnly",
+                    "testRuntimeOnly",
+                    "testCompileOnly",
+                    "api",
                     "annotationProcessor",
                     "developmentOnly"
             );
