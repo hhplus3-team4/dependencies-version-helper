@@ -39,11 +39,10 @@ public class GradleCleanerWithGroovy implements GradleCleaner {
             String dependencyTypes = String.join("|",
                     "implementation",
                     "testImplementation",
-                    "api",
                     "compileOnly",
                     "runtimeOnly",
-                    "annotationProcessor",
-                    "developmentOnly"
+                    "testRuntimeOnly",
+                    "testCompileOnly"
             );
 
             String patternString = "(" + dependencyTypes + ")\\s+'\"?" + Pattern.quote(dependency.getGroupId()) +

@@ -1,7 +1,6 @@
 package com.hhplus.dependenciesversionhelper.service;
 
 import com.hhplus.dependenciesversionhelper.model.Dependency;
-import com.hhplus.dependenciesversionhelper.service.GradleParser;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.kotlin.psi.KtCallExpression;
@@ -36,9 +35,11 @@ public class GradleParserWithKotlinDsl implements GradleParser {
             String dependencyTypes = String.join("|",
                     "implementation",
                     "testImplementation",
-                    "api",
                     "compileOnly",
                     "runtimeOnly",
+                    "testRuntimeOnly",
+                    "testCompileOnly",
+                    "api",
                     "annotationProcessor",
                     "developmentOnly"
             );

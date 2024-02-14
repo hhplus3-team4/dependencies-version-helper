@@ -39,9 +39,11 @@ public class GradleCleanerWithKotlinDsl implements GradleCleaner {
             String dependencyTypes = String.join("|",
                     "implementation",
                     "testImplementation",
-                    "api",
                     "compileOnly",
                     "runtimeOnly",
+                    "testRuntimeOnly",
+                    "testCompileOnly",
+                    "api",
                     "annotationProcessor",
                     "developmentOnly"
             );
