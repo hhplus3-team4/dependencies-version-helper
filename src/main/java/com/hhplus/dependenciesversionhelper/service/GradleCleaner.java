@@ -8,5 +8,7 @@ import java.util.List;
 
 public interface GradleCleaner {
 
-    public void cleanDependencyVersion(Project project, VirtualFile gradleFile, List<Dependency> selectedDependencies);
+    public void removeVersion(Project project, VirtualFile gradleFile, List<Dependency> selectedDependencies);
+
+    public void addNeedVersion(Project project, VirtualFile gradleFile, List<Dependency> versionlessDependencies);
 }

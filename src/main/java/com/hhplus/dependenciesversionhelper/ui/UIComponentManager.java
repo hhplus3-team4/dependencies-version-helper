@@ -13,8 +13,18 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class UIComponentManager {
-    public DefaultTableModel createTableModel(String relativePath, String springBootVersion) {
-        return new DefaultTableModel(new Object[]{"Select", "Dependencies(" + relativePath + ")(Spring Boot Version: " + springBootVersion + ")"}, 0) {
+    @NotNull
+    public JLabel createLabel(String springBootVersion) {
+        // 라벨 여백 조정
+        JLabel descriptionLabel = new JLabel("<html><b>SpringBoot " + springBootVersion + " Version Managed Dependencies.</b><br><br>"
+                + "The following dependencies are managed by SpringBoot, so specifying a version is unnecessary.<br>"
+                + "If you wish for versions to be automatically managed, please select the checkboxes.<br></html>");
+        descriptionLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // 상하 여백은 유지하고 좌우 여백을 제거합니다.
+        return descriptionLabel;
+    }
+
+    public DefaultTableModel createVersionedTableModel() {
+        return new DefaultTableModel(new Object[]{"Select", "Versioned Managed Dependencies"}, 0) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
                 return columnIndex == 0 ? Boolean.class : String.class;
@@ -27,31 +37,42 @@ public class UIComponentManager {
         };
     }
 
-    @NotNull
-    public JLabel createLabel() {
-        // 라벨 여백 조정
-        JLabel descriptionLabel = new JLabel("<html><b>SpringBoot Version Managed Dependencies.</b><br><br>"
-                + "The following dependencies are managed by SpringBoot, so specifying a version is unnecessary.<br>"
-                + "If you wish for versions to be automatically managed, please select the checkboxes.<br></html>");
-        descriptionLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // 상하 여백은 유지하고 좌우 여백을 제거합니다.
-        return descriptionLabel;
-    }
-
-    // 이미 만들어진 tableModel 과 dependency 이용해 테이블 객체 생성해 반환
-    public static JTable createTable(DefaultTableModel tableModel, List<Dependency> dependencies) {
-        // 의존성 데이터를 테이블 모델에 추가
-        for (Dependency dependency : dependencies) {
-            tableModel.addRow(new Object[]{false, dependency.deserialize()});
+    public JTable createVersionedTable(DefaultTableModel model, List<Dependency> versionedManagedDependencies) {
+        for (Dependency dependency : versionedManagedDependencies) {
+            model.addRow(new Object[]{false, dependency.deserialize()});
         }
 
-        JTable table = new JBTable(tableModel);
+        JTable table = new JBTable(model);
         setupTableHeaderCheckbox(table);
-        setupColumnWidths(table);
+        setupColumnWidths(table, 30);
 
         return table;
     }
 
-    private static void setupTableHeaderCheckbox(JTable table) {
+    public DefaultTableModel createVersionlessTableModel() {
+        return new DefaultTableModel(new Object[]{"Action", "Versionless Unmanaged Dependencies"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 0;
+            }
+        };
+    }
+
+    public JTable createVersionlessTable(DefaultTableModel model, List<Dependency> versionlessUnmanagedDependencies) {
+        for (Dependency dependency : versionlessUnmanagedDependencies) {
+            model.addRow(new Object[]{"find version", dependency.deserialize()});
+        }
+
+        JTable table = new JBTable(model);
+        table.getColumn("Action").setCellRenderer(new ButtonRenderer());
+        table.getColumn("Action").setCellEditor(new ButtonEditor(new JCheckBox(), versionlessUnmanagedDependencies));
+
+        setupColumnWidths(table, 100);
+
+        return table;
+    }
+
+    private void setupTableHeaderCheckbox(JTable table) {
         TableColumn selectColumn = table.getColumnModel().getColumn(0);
         JCheckBox selectAllCheckBox = new JCheckBox();
         selectAllCheckBox.setHorizontalAlignment(JLabel.CENTER);
@@ -68,7 +89,7 @@ public class UIComponentManager {
     }
 
     // 외부에서 tableModel 을 받아 작업을 처리하도록 변경
-    private static void toggleSelectAll(DefaultTableModel tableModel, JCheckBox selectAllCheckBox, JTableHeader header, MouseEvent e) {
+    private void toggleSelectAll(DefaultTableModel tableModel, JCheckBox selectAllCheckBox, JTableHeader header, MouseEvent e) {
         // 클릭된 위치가 첫 번째 열의 헤더인지 확인
         int columnIndex = header.columnAtPoint(e.getPoint());
         if (columnIndex == 0) {
@@ -84,10 +105,10 @@ public class UIComponentManager {
         }
     }
 
-    private static void setupColumnWidths(JTable table) {
+    private void setupColumnWidths(JTable table, int width) {
         TableColumn selectColumn = table.getColumnModel().getColumn(0);
-        selectColumn.setPreferredWidth(30);
-        selectColumn.setMaxWidth(30);
-        selectColumn.setMinWidth(30);
+        selectColumn.setPreferredWidth(width);
+        selectColumn.setMaxWidth(width);
+        selectColumn.setMinWidth(width);
     }
 }

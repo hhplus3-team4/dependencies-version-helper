@@ -4,11 +4,13 @@ import java.util.regex.Pattern;
 
 public interface PatternManager {
 
-    public Pattern getVersionPattern();
+    public Pattern getAllDependenciesMatchPattern();
 
-    public Pattern getDependencyPattern();
+    public String getRemoveDependenciesMatchPattern(String groupId, String artifactId);
 
-    public String getDependencyCleanPattern(String groupId, String artifactId);
+    public String getDependencyRemovalReplacementPattern(String groupId, String artifactId);
 
-    public String getDependencyReplacementPattern(String groupId, String artifactId);
+    public String getAddVersionDependenciesMatchPattern(String groupId, String artifactId);
+
+    public String getDependencyAddVersionReplacementPattern(String groupId, String artifactId);
 }

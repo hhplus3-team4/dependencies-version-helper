@@ -1,22 +1,21 @@
 package com.hhplus.dependenciesversionhelper.service;
 
 import com.hhplus.dependenciesversionhelper.model.Dependency;
+import com.hhplus.dependenciesversionhelper.util.DocumentManager;
 import com.hhplus.dependenciesversionhelper.util.PatternManager;
 import com.hhplus.dependenciesversionhelper.util.PatternManagerWithGroovy;
 import com.hhplus.dependenciesversionhelper.util.PatternManagerWithKotlinDsl;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDocumentManager;
 
 import java.util.List;
 
 public class GradleCleanerImpl implements GradleCleaner {
 
     @Override
-    public void cleanDependencyVersion(Project project, VirtualFile gradleFile, List<Dependency> selectedDependencies) {
+    public void removeVersion(Project project, VirtualFile gradleFile, List<Dependency> selectedDependencies) {
         Document document = FileDocumentManager.getInstance().getDocument(gradleFile);
         PatternManager patternManager = createPatternManager(gradleFile.getName());
         if (patternManager == null) return;
@@ -26,30 +25,44 @@ public class GradleCleanerImpl implements GradleCleaner {
             String modifiedContent = fileContent;
 
             for(Dependency dependency : selectedDependencies){
-                String pattern = patternManager.getDependencyCleanPattern(dependency.getGroupId(), dependency.getArtifactId());
+                String pattern = patternManager.getRemoveDependenciesMatchPattern(dependency.getGroupId(), dependency.getArtifactId());
                 modifiedContent = modifiedContent.replaceAll(pattern,
-                        patternManager.getDependencyReplacementPattern(dependency.getGroupId(), dependency.getArtifactId()));
+                        patternManager.getDependencyRemovalReplacementPattern(dependency.getGroupId(), dependency.getArtifactId()));
             }
 
             if (!modifiedContent.equals(fileContent)) {
-                updateDocumentContent(project, document, modifiedContent);
-                saveDocument(gradleFile);
+                DocumentManager documentManager = new DocumentManager();
+
+                documentManager.updateContent(project, document, modifiedContent);
+                documentManager.saveContent(gradleFile);
             }
         }
     }
 
-    public void updateDocumentContent(Project project, Document document, String modifiedContent) {
-        WriteCommandAction.runWriteCommandAction(project, () -> {
-            document.setText(modifiedContent);
-            PsiDocumentManager.getInstance(project).commitDocument(document);
-        });
-    }
+    @Override
+    public void addNeedVersion(Project project, VirtualFile gradleFile, List<Dependency> versionlessDependencies) {
+        Document document = FileDocumentManager.getInstance().getDocument(gradleFile);
+        PatternManager patternManager = createPatternManager(gradleFile.getName());
+        if (patternManager == null) return;
 
-    public void saveDocument(VirtualFile gradleFile) {
-        FileDocumentManager fileDocumentManager = FileDocumentManager.getInstance();
-        Document document = fileDocumentManager.getDocument(gradleFile);
         if (document != null) {
-            fileDocumentManager.saveDocument(document);
+            String fileContent = document.getText();
+            String modifiedContent = fileContent;
+
+            for(Dependency dependency : versionlessDependencies){
+                if (!dependency.getVersion().equals("Need_Version")) {
+                    String pattern = patternManager.getAddVersionDependenciesMatchPattern(dependency.getGroupId(), dependency.getArtifactId());
+                    modifiedContent = modifiedContent.replaceAll(pattern,
+                            patternManager.getDependencyAddVersionReplacementPattern(dependency.getGroupId(), dependency.getArtifactId()));
+                }
+            }
+
+            if (!modifiedContent.equals(fileContent)) {
+                DocumentManager documentManager = new DocumentManager();
+
+                documentManager.updateContent(project, document, modifiedContent);
+                documentManager.saveContent(gradleFile);
+            }
         }
     }
 
