@@ -2,6 +2,7 @@ package com.hhplus.dependenciesversionhelper.ui;
 
 import com.hhplus.dependenciesversionhelper.model.Dependency;
 import com.hhplus.dependenciesversionhelper.model.DependencyAnalyzer;
+import com.hhplus.dependenciesversionhelper.model.DependencyTableModelContainer;
 import com.hhplus.dependenciesversionhelper.model.GradleDependencyAnalysis;
 import com.hhplus.dependenciesversionhelper.service.*;
 import com.hhplus.dependenciesversionhelper.util.DependenciesFetcher;
@@ -33,7 +34,7 @@ public class DependencyCleanerDialogWrapper extends DialogWrapper {
     private String springBootVersion;
     private List<Dependency> pomDependencies;
     private List<GradleDependencyAnalysis> gradleDependencyAnalyses;
-    private Map<GradleDependencyAnalysis, DefaultTableModel> infoToTableModelMap = new HashMap<>();
+    private Map<GradleDependencyAnalysis, DependencyTableModelContainer> infoToTableModelMap = new HashMap<>();
     private JBTabbedPane tabbedPane;
 
 
@@ -74,11 +75,11 @@ public class DependencyCleanerDialogWrapper extends DialogWrapper {
             JTable versionedTable = uiComponentManager.createVersionedTable(versionedModel, analysis.getDependencyAnalyzer().getVersionedManagedDependencies());
             tablesPanel.add(new JScrollPane(versionedTable));
 
-            infoToTableModelMap.put(analysis, versionedModel);
-
             DefaultTableModel versionlessModel = uiComponentManager.createVersionlessTableModel();
             JTable versionlessTable = uiComponentManager.createVersionlessTable(versionlessModel, analysis.getDependencyAnalyzer().getVersionlessUnmanagedDependencies());
             tablesPanel.add(new JScrollPane(versionlessTable));
+
+            infoToTableModelMap.put(analysis, new DependencyTableModelContainer(versionedModel, versionlessModel));
 
             tabbedPane.addTab(relativePath, tablesPanel);
         }
@@ -137,7 +138,7 @@ public class DependencyCleanerDialogWrapper extends DialogWrapper {
         protected void doAction(ActionEvent e) {
             gradleDependencyAnalyses.forEach(analysis -> {
                 VirtualFile gradleFile = analysis.getGradleFile();
-                DefaultTableModel versionedModel = infoToTableModelMap.get(analysis);
+                DefaultTableModel versionedModel = infoToTableModelMap.get(analysis).getVersionedModel();
 
                 // versionedTable에서 선택된 의존성 처리
                 List<Dependency> selectedDependencies = getSelectedDependencies(analysis, versionedModel);
@@ -147,22 +148,27 @@ public class DependencyCleanerDialogWrapper extends DialogWrapper {
                     gradleCleaner.removeVersion(project, gradleFile, selectedDependencies);
                 }
 
-                // versionlessTable의 모든 의존성에 "Need_Version" 추가
+                // versionlessTable의 프로세스
                 List<Dependency> versionlessUnmanagedDependencies = analysis.getDependencyAnalyzer().getVersionlessUnmanagedDependencies();
+                DefaultTableModel versionlessModel = infoToTableModelMap.get(analysis).getVersionlessModel();
 
-                if(versionlessUnmanagedDependencies.size() > 0) {
+                // versionedTable에서 버전을 기입한 의존성 처리
+                List<Dependency> userInputDependencies = getUserInputDependencies(analysis, versionlessModel);
+
+                if(userInputDependencies.size() > 0) {
                     GradleCleaner gradleCleaner = new GradleCleanerImpl();
-                    gradleCleaner.addNeedVersion(project, gradleFile, versionlessUnmanagedDependencies);
+                    gradleCleaner.addVersion(project, gradleFile, userInputDependencies);
                 }
             });
+
             close(OK_EXIT_CODE);
         }
 
-        private List<Dependency> getSelectedDependencies(GradleDependencyAnalysis gradleDependencyAnalysis, DefaultTableModel tableModel) {
+        private List<Dependency> getSelectedDependencies(GradleDependencyAnalysis gradleDependencyAnalysis, DefaultTableModel versionedModel) {
             List<Dependency> selectedDependencies = new ArrayList<>();
 
-            for (int i = 0; i < tableModel.getRowCount(); i++) {
-                Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
+            for (int i = 0; i < versionedModel.getRowCount(); i++) {
+                Boolean isSelected = (Boolean) versionedModel.getValueAt(i, 0);
 
                 if (Boolean.TRUE.equals(isSelected)) {
                     Dependency selectedDependency = gradleDependencyAnalysis.getDependencyAnalyzer().getVersionedManagedDependencies().get(i);
@@ -171,6 +177,28 @@ public class DependencyCleanerDialogWrapper extends DialogWrapper {
             }
 
             return selectedDependencies;
+        }
+
+        private List<Dependency> getUserInputDependencies(GradleDependencyAnalysis gradleDependencyAnalysis, DefaultTableModel versionlessModel) {
+            List<Dependency> versionedDependencies = new ArrayList<>();
+            List<Dependency> versionlessUnmanagedDependencies = gradleDependencyAnalysis.getDependencyAnalyzer().getVersionlessUnmanagedDependencies();
+
+            for (int i = 0; i < versionlessModel.getRowCount(); i++) {
+                String userVersionInput = (String)versionlessModel.getValueAt(i, 2);
+
+                if (userVersionInput != null && !userVersionInput.trim().isEmpty()) {
+                    Dependency originalDependency = versionlessUnmanagedDependencies.get(i);
+                    versionedDependencies.add(
+                            new Dependency(
+                            originalDependency.getDependencyType(),
+                            originalDependency.getGroupId(),
+                            originalDependency.getArtifactId(),
+                            userVersionInput)
+                    );
+                }
+            }
+
+            return versionedDependencies;
         }
 
     }

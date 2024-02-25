@@ -40,7 +40,7 @@ public class GradleCleanerImpl implements GradleCleaner {
     }
 
     @Override
-    public void addNeedVersion(Project project, VirtualFile gradleFile, List<Dependency> versionlessDependencies) {
+    public void addVersion(Project project, VirtualFile gradleFile, List<Dependency> userInputDependencies) {
         Document document = FileDocumentManager.getInstance().getDocument(gradleFile);
         PatternManager patternManager = createPatternManager(gradleFile.getName());
         if (patternManager == null) return;
@@ -49,12 +49,10 @@ public class GradleCleanerImpl implements GradleCleaner {
             String fileContent = document.getText();
             String modifiedContent = fileContent;
 
-            for(Dependency dependency : versionlessDependencies){
-                if (!dependency.getVersion().equals("Need_Version")) {
-                    String pattern = patternManager.getAddVersionDependenciesMatchPattern(dependency.getGroupId(), dependency.getArtifactId());
-                    modifiedContent = modifiedContent.replaceAll(pattern,
-                            patternManager.getDependencyAddVersionReplacementPattern(dependency.getGroupId(), dependency.getArtifactId()));
-                }
+            for(Dependency dependency : userInputDependencies){
+                String pattern = patternManager.getAddVersionDependenciesMatchPattern(dependency.getGroupId(), dependency.getArtifactId());
+                modifiedContent = modifiedContent.replaceAll(pattern,
+                        patternManager.getDependencyAddVersionReplacementPattern(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion()));
             }
 
             if (!modifiedContent.equals(fileContent)) {

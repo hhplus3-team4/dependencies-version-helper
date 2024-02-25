@@ -44,16 +44,16 @@ public class UIComponentManager {
 
         JTable table = new JBTable(model);
         setupTableHeaderCheckbox(table);
-        setupColumnWidths(table, 30);
+        setupColumnWidths(table, 0, 30);
 
         return table;
     }
 
     public DefaultTableModel createVersionlessTableModel() {
-        return new DefaultTableModel(new Object[]{"Action", "Versionless Unmanaged Dependencies"}, 0) {
+        return new DefaultTableModel(new Object[]{"Action", "Versionless Unmanaged Dependencies", "Version"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 0;
+                return column == 0 || column == 2;
             }
         };
     }
@@ -66,8 +66,10 @@ public class UIComponentManager {
         JTable table = new JBTable(model);
         table.getColumn("Action").setCellRenderer(new ButtonRenderer());
         table.getColumn("Action").setCellEditor(new ButtonEditor(new JCheckBox(), versionlessUnmanagedDependencies));
+        table.getColumn("Version").setCellEditor(new DefaultCellEditor(new JTextField()));
 
-        setupColumnWidths(table, 100);
+        setupColumnWidths(table, 0, 100);
+        setupColumnWidths(table, 2, 100);
 
         return table;
     }
@@ -105,8 +107,8 @@ public class UIComponentManager {
         }
     }
 
-    private void setupColumnWidths(JTable table, int width) {
-        TableColumn selectColumn = table.getColumnModel().getColumn(0);
+    private void setupColumnWidths(JTable table, int columnIndex, int width) {
+        TableColumn selectColumn = table.getColumnModel().getColumn(columnIndex);
         selectColumn.setPreferredWidth(width);
         selectColumn.setMaxWidth(width);
         selectColumn.setMinWidth(width);

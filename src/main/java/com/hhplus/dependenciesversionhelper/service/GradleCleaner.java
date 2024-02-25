@@ -10,5 +10,5 @@ public interface GradleCleaner {
 
     public void removeVersion(Project project, VirtualFile gradleFile, List<Dependency> selectedDependencies);
 
-    public void addNeedVersion(Project project, VirtualFile gradleFile, List<Dependency> versionlessDependencies);
+    public void addVersion(Project project, VirtualFile gradleFile, List<Dependency> versionlessDependencies);
 }

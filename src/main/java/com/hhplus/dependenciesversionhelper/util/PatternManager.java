@@ -12,5 +12,5 @@ public interface PatternManager {
 
     public String getAddVersionDependenciesMatchPattern(String groupId, String artifactId);
 
-    public String getDependencyAddVersionReplacementPattern(String groupId, String artifactId);
+    public String getDependencyAddVersionReplacementPattern(String groupId, String artifactId, String version);
 }

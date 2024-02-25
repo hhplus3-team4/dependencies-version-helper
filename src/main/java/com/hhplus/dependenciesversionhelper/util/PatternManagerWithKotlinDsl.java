@@ -67,7 +67,7 @@ public class PatternManagerWithKotlinDsl implements PatternManager{
     }
 
     @Override
-    public String getDependencyAddVersionReplacementPattern(String groupId, String artifactId) {
-        return "$1(\"" + groupId + ":" + artifactId + ":Need_Version\")";
+    public String getDependencyAddVersionReplacementPattern(String groupId, String artifactId, String version) {
+        return "$1(\"" + groupId + ":" + artifactId + ":" + version + "\")";
     }
 }

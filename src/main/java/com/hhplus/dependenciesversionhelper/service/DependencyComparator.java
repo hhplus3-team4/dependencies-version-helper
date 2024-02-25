@@ -26,7 +26,7 @@ public class DependencyComparator {
                     versionedManagedDependencies.add(changeDependency);
                 }
             } else {
-                if (projectDependency.getVersion().equals("") || projectDependency.getVersion().equals("Need_Version")) {
+                if (projectDependency.getVersion().equals("")) {
                     Dependency changeDependency = new Dependency(projectDependency.getDependencyType(), projectDependency.getGroupId(), projectDependency.getArtifactId(), projectDependency.getVersion());
                     versionlessUnmanagedDependencies.add(changeDependency);
                 }

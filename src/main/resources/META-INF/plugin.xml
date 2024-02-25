@@ -2,17 +2,81 @@
 <idea-plugin>
     <id>com.hhplus.dependencies-version-helper</id>
     <name>DependenciesVersionHelper</name>
-    <vendor email="hhplus3.team4@gmail.com">HhTeam4</vendor>
+    <version>1.0.0</version>
+    <vendor email="hhplus3.team4@gmail.com" url="https://github.com/hhplus3-team4/dependencies-version-helper/tree/develop">HhTeam4</vendor>
 
-    <description><![CDATA[
-    <html><b>SpringBoot Version Managed Dependencies.</b><br><br>
-    The following dependencies are managed by SpringBoot, so specifying a version is unnecessary.
-  ]]></description>
+    <description>
+        <![CDATA[
+        <p>
+            Dependencies Version Helper is a plugin for IntelliJ IDEA that assists in managing dependencies in Spring Boot projects.
+            This plugin enables you to easily identify and manage dependencies that need updates by comparing the dependencies defined in your project's build.gradle file with the Spring Boot dependency management POM file.
+        </p>
+
+        <p>
+            Key Features:
+            <ul>
+                <li>Automatic Spring Boot Version Detection: Automatically detects the Spring Boot version used in the project by analyzing the libraries.</li>
+                <li>Dependency Auto-Analysis: Extracts dependencies from the build.gradle file, compares them with the Spring Boot dependency management POM file, and identifies those that need updates.</li>
+                <li>Dependency Update Suggestions: Presents a list of dependencies that require updates, allowing you to selectively apply these updates.</li>
+                <li>User-Friendly Interface: Provides a GUI dialog that displays the list of dependencies needing changes.</li>
+            </ul>
+        </p>
+
+        <p>
+            Installation:
+            <ol>
+                <li>Go to <code>File > Settings > Plugins</code> in IntelliJ IDEA.</li>
+                <li>Select the <code>Marketplace</code> tab and search for "Dependencies Version Helper".</li>
+                <li>Find the plugin and click the <code>Install</code> button.</li>
+                <li>Restart IntelliJ to activate the plugin after installation.</li>
+            </ol>
+        </p>
+
+        <p>
+            Usage:
+            <ol>
+                <li>Open a Spring Boot project in IntelliJ IDEA.</li>
+                <li>Select <code>Tools > Dependencies Version Helper</code> from the main menu.</li>
+                <li>The plugin will analyze the build.gradle file and display a dialog with a list of dependencies that need updates.</li>
+                <li>
+                    For <strong>versioned managed dependencies</strong>:
+                    <ul>
+                        <li>Use the checkboxes next to each dependency to select items for update.</li>
+                    </ul>
+                </li>
+                <li>
+                    For <strong>versionless unmanaged dependencies</strong>:
+                    <ul>
+                        <li>Click the <code>find version</code> button to open a website for checking available versions of the dependency.</li>
+                        <li>Input the desired version into the textbox next to the dependency.</li>
+                    </ul>
+                </li>
+                <li>After making your selections, click <code>OK</code> to apply the changes.</li>
+            </ol>
+        </p>
+
+
+        <p>
+            How to Contribute:
+            <ul>
+                <li>Bug Reporting: Report bugs via the issue tracker.</li>
+                <li>Feature Suggestions: If you have ideas for new features, please suggest them through the issue tracker.</li>
+                <li>Code Contributions: You can directly contribute code via Pull Requests. Please refer to the <code>CONTRIBUTING.md</code> document before contributing.</li>
+            </ul>
+        </p>
+
+        <p>
+            License:
+            This project is distributed under the MIT License.
+        </p>
+    ]]>
+    </description>
+
 
     <change-notes><![CDATA[
         <p>1.0.0</p>
         <ul>
-            <li>multi gradle file support</li>
+            <li>24.02.25</li>
         </ul>
         ]]>
     </change-notes>
