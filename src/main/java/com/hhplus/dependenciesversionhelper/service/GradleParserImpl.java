@@ -12,31 +12,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GradleParserImpl implements GradleParser{
-
-    @Override
-    public String findSpringBootVersion(PsiFile psiFile, String gradleFileName) {
-        String fileContent = psiFile.getText();
-
-        PatternManager patternManager = createPatternManager(gradleFileName);
-        if (patternManager == null) return null;
-        Pattern pattern = patternManager.getVersionPattern();
-
-        Matcher matcher = pattern.matcher(fileContent);
-
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
-        return null;
-    }
-
     @Override
     public List<Dependency> parseGradleDependencies(PsiFile psiFile, String gradleFileName) {
         List<Dependency> dependencies = new ArrayList<>();
         String fileContent = psiFile.getText();
 
         PatternManager patternManager = createPatternManager(gradleFileName);
-        Pattern pattern = patternManager.getDependencyPattern();
+        Pattern pattern = patternManager.getAllDependenciesMatchPattern();
         if (pattern == null) return null;
 
         Matcher matcher = pattern.matcher(fileContent);
